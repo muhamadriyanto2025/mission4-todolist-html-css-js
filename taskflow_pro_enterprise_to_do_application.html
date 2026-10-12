@@ -9,7 +9,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -25,13 +25,24 @@
                             600: '#2563eb',
                             700: '#1d4ed8',
                         }
+                    },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                        'ping-slow': 'ping 3s cubic-bezier(0, 0, 0.2, 1) infinite',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                    },
+                    keyframes: {
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(-2%)' },
+                            '50%': { transform: 'translateY(0)' },
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Custom scrollbar styling for clean desktop & mobile views */
+        /* Custom scrollbar styling */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -45,6 +56,15 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #475569;
+        }
+
+        /* Profile Modal Keyframe Animations */
+        @keyframes modalPop {
+            0% { transform: scale(0.85) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .animate-modal-pop {
+            animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
     </style>
 </head>
@@ -71,7 +91,7 @@
             <div class="hidden md:flex items-center space-x-4 bg-slate-800/60 border border-slate-700/60 px-4 py-2 rounded-xl text-sm">
                 <div class="flex items-center text-slate-300 gap-2">
                     <i data-lucide="calendar" class="w-4 h-4 text-brand-400"></i>
-                    <span id="currentDate" class="font-medium">Senin, 1 Januari 2025</span>
+                    <span id="currentDate" class="font-medium">Senin, 1 Januari 2026</span>
                 </div>
                 <div class="h-4 w-px bg-slate-700"></div>
                 <div class="flex items-center text-brand-400 font-mono font-semibold gap-1.5">
@@ -80,17 +100,22 @@
                 </div>
             </div>
 
-            <!-- User Profile Widget -->
-            <div class="flex items-center space-x-3 bg-slate-800/40 p-1.5 pr-4 rounded-full border border-slate-700/50">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" 
-                     alt="Profile Avatar" 
-                     class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-500/50"
-                     onerror="this.src='https://placehold.co/100x100/3b82f6/ffffff?text=SE'">
-                <div class="text-left">
-                    <div class="text-xs font-bold text-slate-200">Budi Santoso</div>
-                    <div class="text-[10px] font-medium text-slate-400">Principal Software Engineer</div>
+            <!-- User Profile Trigger Widget -->
+            <button id="btnOpenProfile" title="Klik untuk melihat Detail Profil Pembuat"
+                    class="group flex items-center space-x-3 bg-slate-800/60 hover:bg-slate-800 p-1.5 pr-4 rounded-full border border-slate-700/60 hover:border-brand-500/50 transition-all duration-300 relative">
+                <div class="relative">
+                    <img src="img/ryan.jpeg" 
+                         alt="Profile Avatar" 
+                         class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-500/80 group-hover:ring-brand-400 transition-all"
+                         onerror="this.src='https://placehold.co/100x100/3b82f6/ffffff?text=SE'">
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
                 </div>
-            </div>
+                <div class="text-left">
+                    <div class="text-xs font-bold text-slate-200 group-hover:text-brand-400 transition-colors">Muhamad Riyanto</div>
+                    <div class="text-[10px] font-medium text-slate-400">Software Engineer Gen Z</div>
+                </div>
+                <i data-lucide="sparkles" class="w-4 h-4 text-brand-400 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all"></i>
+            </button>
         </div>
     </header>
 
@@ -99,8 +124,7 @@
 
         <!-- DASHBOARD STATS BAR -->
         <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- Total Task -->
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-md">
                 <div>
                     <p class="text-xs text-slate-400 font-medium">Total Agenda</p>
                     <p id="statTotal" class="text-2xl font-extrabold text-white mt-1">0</p>
@@ -109,8 +133,7 @@
                     <i data-lucide="layers" class="w-5 h-5"></i>
                 </div>
             </div>
-            <!-- Pending Task -->
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-md">
                 <div>
                     <p class="text-xs text-slate-400 font-medium">In-Progress</p>
                     <p id="statPending" class="text-2xl font-extrabold text-amber-400 mt-1">0</p>
@@ -119,8 +142,7 @@
                     <i data-lucide="clock" class="w-5 h-5"></i>
                 </div>
             </div>
-            <!-- Completed Task -->
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-md">
                 <div>
                     <p class="text-xs text-slate-400 font-medium">Selesai (Done)</p>
                     <p id="statDone" class="text-2xl font-extrabold text-emerald-400 mt-1">0</p>
@@ -129,8 +151,7 @@
                     <i data-lucide="check-circle-2" class="w-5 h-5"></i>
                 </div>
             </div>
-            <!-- Overdue Task -->
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-md">
                 <div>
                     <p class="text-xs text-slate-400 font-medium">Terlambat (Overdue)</p>
                     <p id="statOverdue" class="text-2xl font-extrabold text-rose-500 mt-1">0</p>
@@ -143,17 +164,16 @@
 
         <!-- TASK CREATION FORM SECTION -->
         <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-brand-500"></div>
             <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <i data-lucide="plus-circle" class="w-5 h-5 text-brand-400"></i> Buat Agenda Baru
+                <i data-lucide="plus-circle" class="w-5 h-5 text-brand-400"></i> Tulis Agenda To-Do List Baru
             </h2>
             
             <form id="taskForm" class="space-y-4">
-                <!-- Textarea -->
                 <div>
-                    <label for="taskInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Deskripsi Pekerjaan / Task</label>
+                    <label for="taskInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Deskripsi Agenda Pekerjaan</label>
                     <textarea id="taskInput" rows="2" 
-                              placeholder="Tuliskan detail pekerjaan atau agenda yang akan dikerjakan..." 
+                              placeholder="Tuliskan deskripsi pekerjaan atau agenda harian yang akan dilakukan..." 
                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none transition-all"></textarea>
                 </div>
 
@@ -171,9 +191,9 @@
                         </div>
                     </div>
 
-                    <!-- Due Date Selector -->
+                    <!-- Target Date Selector -->
                     <div>
-                        <label for="dueDateInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Jatuh Tempo (Due Date)</label>
+                        <label for="dueDateInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Target Tanggal Pekerjaan</label>
                         <input type="date" id="dueDateInput" 
                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                     </div>
@@ -182,56 +202,67 @@
                     <div class="flex items-end">
                         <button type="submit" 
                                 class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-brand-600/30 active:scale-[0.98]">
-                            <i data-lucide="send" class="w-4 h-4"></i> Tambah Agenda
+                            <i data-lucide="send" class="w-4 h-4"></i> Submit Agenda
                         </button>
                     </div>
                 </div>
             </form>
         </section>
 
-        <!-- ACTION BAR (GLOBAL ACTIONS) -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-2">
+        <!-- FILTER & ACTION BAR -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2">
             <div>
-                <h2 class="text-xl font-extrabold text-white tracking-tight">Board Pekerjaan</h2>
+                <h2 class="text-xl font-extrabold text-white tracking-tight">Board Activity Pekerjaan</h2>
                 <p class="text-xs text-slate-400">Pantau dan kelola seluruh daftar aktivitas harian tim secara terorganisir.</p>
             </div>
             
-            <button id="btnDeleteAll" 
-                    class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-medium px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition-all active:scale-[0.98]">
-                <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Semua Task
-            </button>
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <!-- Date Filter Input -->
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs flex-1 md:flex-initial">
+                    <i data-lucide="filter" class="w-3.5 h-3.5 text-brand-400"></i>
+                    <span class="text-slate-400">Filter Tanggal:</span>
+                    <input type="date" id="filterDateInput" class="bg-transparent text-slate-200 focus:outline-none text-xs cursor-pointer">
+                    <button id="btnClearFilter" title="Reset Filter Tanggal" class="text-slate-500 hover:text-slate-300 ml-1">
+                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+
+                <!-- Delete All Button -->
+                <button id="btnDeleteAll" 
+                        class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-medium px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition-all active:scale-[0.98]">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Seluruh To-Do
+                </button>
+            </div>
         </div>
 
-        <!-- TWO COLUMN TASK BOARD -->
+        <!-- TWO COLUMN TASK BOARD (TO-DO & DONE) -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            <!-- COLUMN 1: TO-DO / PROGRESS LIST -->
+            <!-- COLUMN 1: TO-DO (IN-PROGRESS TASK LIST) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col h-full shadow-lg">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
                     <div class="flex items-center gap-2.5">
                         <span class="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></span>
-                        <h3 class="font-bold text-slate-100">Daftar Agenda (To-Do)</h3>
+                        <h3 class="font-bold text-slate-100">Daftar Agenda Pekerjaan (To-Do)</h3>
                     </div>
                     <span id="todoBadgeCount" class="bg-slate-800 text-slate-300 border border-slate-700 text-xs px-2.5 py-1 rounded-full font-semibold">0</span>
                 </div>
 
-                <!-- Active Tasks Container -->
                 <div id="todoList" class="space-y-3 flex-1 min-h-[250px]">
                     <!-- Dynamic rendering via JS -->
                 </div>
             </div>
 
-            <!-- COLUMN 2: DONE / COMPLETED LIST -->
+            <!-- COLUMN 2: DONE (COMPLETED TASK LIST) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col h-full shadow-lg">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
                     <div class="flex items-center gap-2.5">
                         <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
-                        <h3 class="font-bold text-slate-100">Selesai (Done)</h3>
+                        <h3 class="font-bold text-slate-100">Selesai Dikerjakan (Done)</h3>
                     </div>
                     <span id="doneBadgeCount" class="bg-slate-800 text-slate-300 border border-slate-700 text-xs px-2.5 py-1 rounded-full font-semibold">0</span>
                 </div>
 
-                <!-- Completed Tasks Container -->
                 <div id="doneList" class="space-y-3 flex-1 min-h-[250px]">
                     <!-- Dynamic rendering via JS -->
                 </div>
@@ -242,8 +273,98 @@
 
     <!-- FOOTER -->
     <footer class="border-t border-slate-800/80 bg-slate-900/50 py-6 mt-12 text-center text-xs text-slate-500">
-        <p>&copy; 2026 TaskFlow Enterprise. Designed & Engineered by Senior Software Engineer.</p>
+        <p>&copy; 2026 TaskFlow Enterprise Edition. Engineered by Muhamad Riyanto (Software Engineer Gen Z).</p>
     </footer>
+
+    <!-- HIGH-END ANIMATED DEVELOPER PROFILE MODAL -->
+    <div id="profileModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="relative bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl shadow-brand-500/10 animate-modal-pop my-8 overflow-hidden">
+            
+            <!-- Animated Ambient Background Glows -->
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Close Modal Button -->
+            <button id="btnCloseProfile" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 transition-all z-10">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Profile Header & Animated Avatar -->
+            <div class="flex flex-col items-center text-center relative z-10">
+                
+                <!-- Expanded Photo Container with Halo Glow and Rotating Particles -->
+                <div class="relative mb-5 group">
+                    <!-- Outer Rotating Glow Particle Ring -->
+                    <div class="absolute -inset-3 rounded-full bg-gradient-to-r from-brand-500 via-indigo-500 to-emerald-400 opacity-75 blur-md animate-spin-slow"></div>
+                    <!-- Pulsing Halo -->
+                    <div class="absolute -inset-1 rounded-full bg-brand-500 opacity-50 animate-ping-slow"></div>
+                    
+                    <!-- Magnified Profile Picture -->
+                    <img src="img/ryan.jpeg" 
+                         alt="Developer Large Portrait" 
+                         class="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-slate-900 shadow-2xl ring-4 ring-brand-500/50">
+                    
+                    <!-- Verified Badge -->
+                    <div class="absolute bottom-1 right-1 bg-brand-500 text-white p-1.5 rounded-full ring-4 ring-slate-900 shadow-lg">
+                        <i data-lucide="badge-check" class="w-5 h-5"></i>
+                    </div>
+                </div>
+
+                <!-- Developer Title & Meta -->
+                <h3 class="text-2xl font-extrabold text-white tracking-tight">Muhamad Riyanto</h3>
+                <p class="text-xs font-semibold text-brand-400 mt-1 uppercase tracking-widest bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
+                    Software Engineer Gen Z
+                </p>
+                <p class="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
+                    <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-500"></i> Enterprise Platform Architecture Division
+                </p>
+            </div>
+
+            <!-- Developer Credentials & Highlights Grid -->
+            <div class="grid grid-cols-2 gap-3 my-6 relative z-10">
+                <div class="bg-slate-950/70 border border-slate-800/80 p-3.5 rounded-2xl text-center">
+                    <p class="text-[11px] text-slate-400 font-medium">Pengalaman Industri</p>
+                    <p class="text-lg font-bold text-emerald-400 mt-0.5">5+ Tahun</p>
+                </div>
+                <div class="bg-slate-950/70 border border-slate-800/80 p-3.5 rounded-2xl text-center">
+                    <p class="text-[11px] text-slate-400 font-medium">Proyek Enterprise</p>
+                    <p class="text-lg font-bold text-brand-400 mt-0.5">50+ Selesai</p>
+                </div>
+            </div>
+
+            <!-- Bio Description -->
+            <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-4 text-xs text-slate-300 leading-relaxed space-y-2 relative z-10">
+                <p class="font-semibold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="terminal" class="w-4 h-4 text-brand-400"></i> Bio & Filosofi Pembuat:
+                </p>
+                <p class="text-slate-400">
+                    Spesialis dalam merancang arsitektur sistem berskala tinggi, *clean code*, serta pengalaman pengguna (UX) yang intuitif. Memiliki fokus pada performa web murni tanpa kebergantungan library eksternal yang berat.
+                </p>
+            </div>
+
+            <!-- Technical Skill Badges -->
+            <div class="mt-5 relative z-10">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Tech Stack Utama:</p>
+                <div class="flex flex-wrap gap-1.5 text-[10px]">
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-medium">HTML5 & Web Storage API</span>
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-medium">Tailwind CSS</span>
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-medium">Vanilla Modern JS (ES6+)</span>
+                    <span class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-medium">Node.js & Cloud Architecture</span>
+                </div>
+            </div>
+
+            <!-- Footer Action inside Modal -->
+            <div class="mt-6 pt-4 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-slate-400 relative z-10">
+                <span class="flex items-center gap-1 text-emerald-400">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Active Developer Status
+                </span>
+                <button id="btnCloseProfileBottom" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all shadow-md">
+                    Tutup Profil
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- CONFIRM DELETE ALL MODAL -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
@@ -252,10 +373,10 @@
                 <div class="p-3 bg-rose-500/10 rounded-xl">
                     <i data-lucide="alert-octagon" class="w-6 h-6"></i>
                 </div>
-                <h3 class="font-bold text-white text-lg">Hapus Semua Task?</h3>
+                <h3 class="font-bold text-white text-lg">Hapus Seluruh Agenda?</h3>
             </div>
             <p class="text-xs text-slate-400 leading-relaxed">
-                Tindakan ini akan menghapus secara permanen seluruh daftar agenda To-Do dan Done. Data yang dihapus tidak dapat dikembalikan.
+                Tindakan ini akan menghapus secara permanen seluruh daftar agenda To-Do dan Done dari browser storage.
             </p>
             <div class="flex justify-end gap-3 pt-2">
                 <button id="btnCancelModal" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-all">
@@ -268,22 +389,24 @@
         </div>
     </div>
 
-    <!-- APPLICATION LOGIC (JS) -->
+    <!-- APPLICATION LOGIC (JAVASCRIPT) -->
     <script>
         /**
-         * TASKFLOW PRO - Enterprise To-Do Application Engine
-         * Designed with Clean Architecture Pattern (State -> Logic -> UI Render)
+         * TASKFLOW PRO - Enterprise Web Application Logic
          */
         document.addEventListener('DOMContentLoaded', () => {
 
             // --- 1. STATE MANAGEMENT ---
-            let tasks = JSON.parse(localStorage.getItem('taskflow_data')) || [];
+            let tasks = JSON.parse(localStorage.getItem('taskflow_enterprise_tasks')) || [];
+            let activeFilterDate = null; // null means show all dates
 
-            // DOM Elements Mapping
+            // DOM Mapping
             const taskForm = document.getElementById('taskForm');
             const taskInput = document.getElementById('taskInput');
             const priorityInput = document.getElementById('priorityInput');
             const dueDateInput = document.getElementById('dueDateInput');
+            const filterDateInput = document.getElementById('filterDateInput');
+            const btnClearFilter = document.getElementById('btnClearFilter');
             
             const todoList = document.getElementById('todoList');
             const doneList = document.getElementById('doneList');
@@ -301,34 +424,32 @@
             const btnCancelModal = document.getElementById('btnCancelModal');
             const btnConfirmDeleteAll = document.getElementById('btnConfirmDeleteAll');
 
-            // --- 2. INITIALIZATION & CLOCK ---
-            // Set Default Due Date to Today (YYYY-MM-DD)
+            // Profile Modal DOM
+            const btnOpenProfile = document.getElementById('btnOpenProfile');
+            const profileModal = document.getElementById('profileModal');
+            const btnCloseProfile = document.getElementById('btnCloseProfile');
+            const btnCloseProfileBottom = document.getElementById('btnCloseProfileBottom');
+
+            // Set Initial Default Date
             const todayISO = new Date().toISOString().split('T')[0];
             dueDateInput.value = todayISO;
 
-            // Live Time Engine
+            // Clock Engine
             function updateClock() {
                 const now = new Date();
-                
-                // Format Date
                 const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', optionsDate);
-                
-                // Format Time
                 document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
             }
             setInterval(updateClock, 1000);
             updateClock();
 
-            // Refresh Lucide Icons
+            // Refresh Icons Helper
             function refreshIcons() {
-                if (window.lucide) {
-                    lucide.createIcons();
-                }
+                if (window.lucide) lucide.createIcons();
             }
 
-            // --- 3. HELPER UTILITIES ---
-            // HTML Sanitization for XSS Prevention
+            // Sanitizer Helper
             function sanitizeHTML(str) {
                 return str.replace(/[&<>'"]/g, 
                     tag => ({
@@ -341,28 +462,64 @@
                 );
             }
 
-            // Save State to Local Storage
+            // Web Storage Persistence
             function saveState() {
-                localStorage.setItem('taskflow_data', JSON.stringify(tasks));
+                localStorage.setItem('taskflow_enterprise_tasks', JSON.stringify(tasks));
                 render();
             }
 
-            // Check if Task Date is Overdue (comparing strictly with local date 00:00)
+            // Check Overdue Status
             function isOverdue(dueDateStr, isCompleted) {
                 if (isCompleted || !dueDateStr) return false;
-                
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-
                 const due = new Date(dueDateStr);
                 due.setHours(0, 0, 0, 0);
-
                 return due < today;
             }
 
-            // --- 4. CORE APPLICATION LOGIC ---
+            // --- 2. PROFILE MODAL CONTROLLER ---
+            function openProfileModal() {
+                profileModal.classList.remove('hidden');
+                profileModal.classList.add('flex');
+            }
 
-            // Add New Task
+            function closeProfileModal() {
+                profileModal.classList.add('hidden');
+                profileModal.classList.remove('flex');
+            }
+
+            btnOpenProfile.addEventListener('click', openProfileModal);
+            btnCloseProfile.addEventListener('click', closeProfileModal);
+            btnCloseProfileBottom.addEventListener('click', closeProfileModal);
+
+            // Close Profile Modal on Outer Backdrop Click
+            profileModal.addEventListener('click', (e) => {
+                if (e.target === profileModal) closeProfileModal();
+            });
+
+            // Close Modal on ESC Key Press
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeProfileModal();
+                    confirmModal.classList.add('hidden');
+                    confirmModal.classList.remove('flex');
+                }
+            });
+
+            // --- 3. FILTERING ENGINE ---
+            filterDateInput.addEventListener('change', (e) => {
+                activeFilterDate = e.target.value || null;
+                render();
+            });
+
+            btnClearFilter.addEventListener('click', () => {
+                filterDateInput.value = '';
+                activeFilterDate = null;
+                render();
+            });
+
+            // --- 4. TASK FORM & HANDLERS ---
             taskForm.addEventListener('submit', (e) => {
                 e.preventDefault();
 
@@ -377,19 +534,16 @@
                     return;
                 }
 
-                const now = new Date();
-                const createdAt = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-
                 const newTask = {
                     id: 'task_' + Date.now(),
                     text: text,
-                    priority: priority, // 'low' | 'medium' | 'high'
+                    priority: priority,
                     dueDate: dueDate,
-                    createdAt: createdAt,
+                    createdAt: new Date().toISOString(),
                     completed: false
                 };
 
-                tasks.unshift(newTask); // Add to start of array
+                tasks.unshift(newTask);
                 saveState();
 
                 // Reset Form
@@ -398,24 +552,17 @@
                 dueDateInput.value = todayISO;
             });
 
-            // Toggle Task Completion Status
             window.toggleTaskStatus = function(id) {
-                tasks = tasks.map(task => {
-                    if (task.id === id) {
-                        return { ...task, completed: !task.completed };
-                    }
-                    return task;
-                });
+                tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
                 saveState();
             };
 
-            // Delete Individual Task
             window.deleteTask = function(id) {
-                tasks = tasks.filter(task => task.id !== id);
+                tasks = tasks.filter(t => t.id !== id);
                 saveState();
             };
 
-            // Modal Interactions for Delete All
+            // Global Delete All Modal
             btnDeleteAll.addEventListener('click', () => {
                 if (tasks.length === 0) return;
                 confirmModal.classList.remove('hidden');
@@ -434,47 +581,48 @@
                 confirmModal.classList.remove('flex');
             });
 
-            // --- 5. UI RENDER ENGINE ---
+            // --- 5. RENDER ENGINE ---
             function render() {
                 todoList.innerHTML = '';
                 doneList.innerHTML = '';
 
-                let totalCount = tasks.length;
-                let pendingCount = 0;
-                let doneCount = 0;
+                // Filter tasks if date filter active
+                let displayedTasks = tasks;
+                if (activeFilterDate) {
+                    displayedTasks = tasks.filter(t => t.dueDate === activeFilterDate);
+                }
+
+                const pendingTasks = displayedTasks.filter(t => !t.completed);
+                const doneTasks = displayedTasks.filter(t => t.completed);
+
                 let overdueCount = 0;
-
-                const pendingTasks = tasks.filter(t => !t.completed);
-                const doneTasks = tasks.filter(t => t.completed);
-
-                pendingCount = pendingTasks.length;
-                doneCount = doneTasks.length;
+                tasks.forEach(t => {
+                    if (isOverdue(t.dueDate, t.completed)) overdueCount++;
+                });
 
                 // Render Pending Tasks (To-Do)
                 if (pendingTasks.length === 0) {
                     todoList.innerHTML = `
-                        <div class="h-48 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-slate-800 rounded-xl text-slate-500">
-                            <i data-lucide="clipboard-check" class="w-10 h-10 mb-2 stroke-1"></i>
-                            <p class="text-sm font-medium">Tidak ada agenda yang pending.</p>
-                            <p class="text-xs text-slate-600">Seluruh tugas telah diselesaikan!</p>
+                        <div class="h-44 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-slate-800/80 rounded-xl text-slate-500">
+                            <i data-lucide="clipboard-check" class="w-8 h-8 mb-2 stroke-1 text-slate-600"></i>
+                            <p class="text-xs font-semibold">${activeFilterDate ? 'Tidak ada agenda di tanggal ini.' : 'Tidak ada agenda pending.'}</p>
+                            <p class="text-[11px] text-slate-600 mt-0.5">Seluruh tugas telah diselesaikan atau belum dibuat.</p>
                         </div>
                     `;
                 } else {
                     pendingTasks.forEach(task => {
                         const late = isOverdue(task.dueDate, task.completed);
-                        if (late) overdueCount++;
-
                         todoList.appendChild(createTaskCard(task, late));
                     });
                 }
 
-                // Render Completed Tasks (Done)
+                // Render Done Tasks
                 if (doneTasks.length === 0) {
                     doneList.innerHTML = `
-                        <div class="h-48 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-slate-800 rounded-xl text-slate-500">
-                            <i data-lucide="check-circle" class="w-10 h-10 mb-2 stroke-1"></i>
-                            <p class="text-sm font-medium">Belum ada tugas yang selesai.</p>
-                            <p class="text-xs text-slate-600">Centang agenda untuk memindahkannya ke sini.</p>
+                        <div class="h-44 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-slate-800/80 rounded-xl text-slate-500">
+                            <i data-lucide="check-circle-2" class="w-8 h-8 mb-2 stroke-1 text-slate-600"></i>
+                            <p class="text-xs font-semibold">Belum ada tugas selesai.</p>
+                            <p class="text-[11px] text-slate-600 mt-0.5">Centang agenda di kolom To-Do untuk dipindahkan ke sini.</p>
                         </div>
                     `;
                 } else {
@@ -483,19 +631,19 @@
                     });
                 }
 
-                // Update Dashboard Statistics
-                statTotal.textContent = totalCount;
-                statPending.textContent = pendingCount;
-                statDone.textContent = doneCount;
+                // Update Stats Counter
+                statTotal.textContent = tasks.length;
+                statPending.textContent = tasks.filter(t => !t.completed).length;
+                statDone.textContent = tasks.filter(t => t.completed).length;
                 statOverdue.textContent = overdueCount;
 
-                todoBadgeCount.textContent = pendingCount;
-                doneBadgeCount.textContent = doneCount;
+                todoBadgeCount.textContent = pendingTasks.length;
+                doneBadgeCount.textContent = doneTasks.length;
 
                 refreshIcons();
             }
 
-            // Card DOM Generator Component
+            // Task Card Generator
             function createTaskCard(task, late) {
                 const card = document.createElement('div');
                 card.className = `p-4 rounded-xl border transition-all duration-200 flex items-start gap-3 group ${
@@ -506,7 +654,6 @@
                             : 'bg-slate-950 border-slate-800 hover:border-slate-700'
                 }`;
 
-                // Priority Badge Color Config
                 let priorityBadge = '';
                 if (task.priority === 'high') {
                     priorityBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">HIGH</span>';
@@ -516,18 +663,15 @@
                     priorityBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LOW</span>';
                 }
 
-                // Overdue Badge
                 const overdueBadge = late 
                     ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-600 text-white animate-pulse flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> OVERDUE</span>' 
                     : '';
 
-                // Formatted Due Date
                 const formattedDueDate = task.dueDate 
                     ? new Date(task.dueDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
                     : '-';
 
                 card.innerHTML = `
-                    <!-- Checkbox -->
                     <div class="pt-0.5">
                         <button onclick="toggleTaskStatus('${task.id}')" 
                                 class="w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
@@ -539,7 +683,6 @@
                         </button>
                     </div>
 
-                    <!-- Content -->
                     <div class="flex-1 min-w-0">
                         <div class="flex flex-wrap items-center gap-2 mb-1.5">
                             ${priorityBadge}
@@ -557,9 +700,8 @@
                         </div>
                     </div>
 
-                    <!-- Delete Button -->
                     <button onclick="deleteTask('${task.id}')" 
-                            title="Hapus Task"
+                            title="Hapus Agenda Ini"
                             class="text-slate-500 hover:text-rose-400 p-1 rounded-lg hover:bg-slate-800 transition-colors opacity-80 group-hover:opacity-100">
                         <i data-lucide="trash" class="w-4 h-4"></i>
                     </button>
@@ -568,7 +710,7 @@
                 return card;
             }
 
-            // Initial First Render
+            // Initial Render
             render();
         });
     </script>
